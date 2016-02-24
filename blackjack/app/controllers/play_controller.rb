@@ -23,35 +23,40 @@ class PlayController < ApplicationController
     end
     @dealer_value = @dealer.map {|card| card.value}.reduce(:+)
 
-    # if @dealer_value == 21
-    #   puts "DEALER WINS"
-    # elsif @player_value == 21
-    #   puts "PLAYER WINS"
-    # end
+    if @dealer_value == 21
+      @winner = "DEALER WINS"
+    elsif @player_value == 21
+      @winner = "PLAYER WINS"
+    elsif @player_value > 21
+      @winner = "PLAYER BUSTS, DEALER WINS"
+    elsif @dealer_value > 21
+      @winner = "DEALER BUSTS, PLAYER WINS"
+    else
+      @winner = nil
+    end
 
-    @current_cards = []
-    @current_cards << @player
-    @current_cards << "SPLIT"
-    @current_cards << @dealer
-    @current_cards << "SPLIT"
-    @current_cards << @deck
-    puts "Puts me: #{@current_cards}"
+    @current_cards = Current.new(@player, @dealer, @deck)
+    @current_cards.id
 
   end
 
   def hit
-    @current_cards = params[:hit].split('SPLIT/')
-    @current_cards.each {|array| array = array.split('/#')}
+    update_current = []
+    ObjectSpace.each_object Current do |item|
+      update_current << item
+    end
 
-    @deck = []
-    @dealer = []
-    @player = []
+    @current_cards = update_current.find{|current| current.id == params[:id].to_i }
+
     if @current_cards.nil?
       render text: "Error.", status: 404
+      @deck = []
+      @dealer = []
+      @player = []
     else
-      @deck = @deck.push(@current_cards.pop)
-      @dealer = @dealer.push(@current_cards.pop)
-      @player = @player.push(@current_cards.pop)
+      @deck = @current_cards.deck
+      @dealer = @current_cards.dealer
+      @player = @current_cards.player
     end
 
     card = @deck.sample
@@ -64,13 +69,60 @@ class PlayController < ApplicationController
     @dealer_value = @dealer.map {|card| card.value}.reduce(:+)
 
     if @dealer_value == 21
-      puts "DEALER WINS"
+      @winner = "DEALER WINS"
     elsif @player_value == 21
-      puts "PLAYER WINS"
+      @winner = "PLAYER WINS"
+    elsif @player_value > 21
+      @winner = "PLAYER BUSTS, DEALER WINS"
+    elsif @dealer_value > 21
+      @winner = "DEALER BUSTS, PLAYER WINS"
+    else
+      @winner = nil
     end
+    render :index
   end
 
-  def winner
+  def stay
+    update_current = []
+    ObjectSpace.each_object Current do |item|
+      update_current << item
+    end
+
+    @current_cards = update_current.find{|current| current.id == params[:id].to_i }
+
+    if @current_cards.nil?
+      render text: "Error.", status: 404
+      @deck = []
+      @dealer = []
+      @player = []
+    else
+      @deck = @current_cards.deck
+      @dealer = @current_cards.dealer
+      @player = @current_cards.player
+    end
+
+    @player_value = @player.map {|card| card.value}.reduce(:+)
+
+    @dealer_value = @dealer.map {|card| card.value}.reduce(:+)
+
+    if @dealer_value == 21
+      @winner = "DEALER WINS"
+    elsif @player_value == 21
+      @winner = "PLAYER WINS"
+    elsif @player_value > 21
+      @winner = "PLAYER BUSTS, DEALER WINS"
+    elsif @dealer_value > 21
+      @winner = "DEALER BUSTS, PLAYER WINS"
+    elsif @player_value > @dealer_value
+      @winner = "PLAYER WINS"
+    elsif @player_value < @dealer_value
+      @winner = "DEALER WINS"
+    elsif @player_value == @dealer_value
+      @winner = "TIE ==> DEALER WINS"
+    else
+      @winner = nil
+    end
+    render :index
   end
 
   def fetch_cards
@@ -92,14 +144,5 @@ class PlayController < ApplicationController
   def create_deck(deck_count)
     deck = fetch_cards * deck_count.to_i
   end
-
-  private
-
-  # def hit_params
-  #   params[:hit][:player] ||= []
-  #   params[:hit][:dealer] ||= []
-  #   params[:hit][:deck] ||= []
-  #   params.require(:hit).permit(player: [], dealer: [], deck: [])
-  # end
 
 end
