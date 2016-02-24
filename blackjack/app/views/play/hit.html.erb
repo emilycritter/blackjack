@@ -1,2 +1,36 @@
-<h1>Play#hit</h1>
-<p>Find me in app/views/play/hit.html.erb</p>
+<nav class="well">
+    <p><a class="btn btn-primary btn-lg" href="/" role="button" style="background-color: white; border: none; color: #141414;">Home</a></p>
+</nav>
+
+
+<h1><%= @winner %></h1>
+
+
+<div class="container" id="player">
+  <div class="row">
+    <h2>
+      <a class="btn btn-primary btn-lg" href="/play/<%= @current_cards.to_param %>" role="button" style="background-color: #141414; border: none; color: white;">Hit</a>
+      Player's Hand:  <%= @player_value %>
+    </h2>
+    <% @player.each do |card| %>
+      <div class="col-xs-3 col-md-3">
+        <div class="thumbnail center-block">
+          <%= image_tag "cards/#{card.img_file}", class: "img-responsive" %>
+        </div>
+      </div>
+    <% end %>
+</div>
+
+<div class="container" id="dealer">
+  <div class="row">
+    <h2>
+      Dealer's Hand:  <%= @dealer_value %>
+    </h2>
+    <% @dealer.each do |card| %>
+      <div class="col-xs-3 col-md-3">
+        <div class="thumbnail center-block">
+          <%= image_tag "cards/#{card.img_file}", class: "img-responsive" %>
+        </div>
+      </div>
+    <% end %>
+</div>
