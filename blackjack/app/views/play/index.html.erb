@@ -2,16 +2,23 @@
     <p><a class="btn btn-primary btn-lg" href="/" role="button" style="background-color: white; border: none; color: #141414;">Home</a></p>
 </nav>
 
-
-<h1><%= @winner %></h1>
+<div class="container">
+  <h1 style="text-align: center;"><%= @winner if @winner != nil %></h1>
+  <h1 style="text-align: center;"><em><%= "Continue playing..." if @winner == nil %></em></h1>
+</div>
 
 
 <div class="container" id="player">
   <div class="row">
-    <h2>
-      <!-- <a class="btn btn-primary btn-lg" href="/play/<%= @current_cards.to_param %>" role="button" style="background-color: #141414; border: none; color: white;">Hit</a> -->
-      Player's Hand:  <%= @player_value %>
-    </h2>
+    <div class="col-xs-2 col-md-1">
+      <h2><%= button_to "Hit", {:controller => "play", :method => "call_hit(@current_cards)"}, class: "btn btn-primary btn-lg" %></h2>
+    </div>
+    <div class="col-xs-2 col-md-1">
+      <h2><%= button_to "Stay", {:controller => "play", :method => "call_hit(@current_cards)"}, class: "btn btn-primary btn-lg" %></h2>
+    </div>
+  </div>
+  <h2> Player's Hand:  <%= @player_value %> </h2>
+  <div class="row">
     <% @player.each do |card| %>
       <div class="col-xs-3 col-md-3">
         <div class="thumbnail center-block">
@@ -26,12 +33,23 @@
     <h2>
       Dealer's Hand:  <%= @dealer_value %>
     </h2>
-    <% @dealer.each do |card| %>
-      <div class="col-xs-3 col-md-3">
-        <div class="thumbnail center-block">
-          <%= image_tag "cards/#{card.img_file}", class: "img-responsive" %>
+    <% @dealer.each_with_index do |card, index| %>
+      <% if index == 0 %>
+        <div class="col-xs-3 col-md-3">
+          <div class="thumbnail center-block">
+            <%= image_tag "cards/#{card.img_file}", class: "img-responsive" %>
+          </div>
         </div>
-      </div>
+      <% end %>
+    <% end %>
+    <% @dealer.each_with_index do |card, index| %>
+      <% if index > 0 %>
+        <div class="col-xs-3 col-md-3">
+          <div class="thumbnail center-block">
+            <%= image_tag "cards/643px-Cards-Reverse.svg.png", class: "img-responsive" %>
+          </div>
+        </div>
+      <% end %>
     <% end %>
 </div>
 

@@ -1,73 +1,52 @@
 require 'csv'
 class PlayController < ApplicationController
   def index
-    if params[:deck_count].present?
-      @deck = create_deck(params[:deck_count].to_i)
+    @current_cards = get_hand(2)
+    # puts "I am current_cards.inspect: #{@current_cards.inspect}"
+
+    if @current_cards.nil?
+      render text: "Error.", status: 404
+      @deck = []
+      @dealer = []
+      @player = []
     else
-      @deck = create_deck(1)
+      @deck = @current_cards.pop
+      @dealer = @current_cards.pop
+      @player = @current_cards.pop
     end
 
-    @player = []
-    2.times do |card|
-      card = @deck.sample
-      @deck.delete(card)
-      @player << card
-    end
-    @player_value = @player.map {|card| card.value}.reduce(:+)
-
-    @dealer = []
-    2.times do |card|
-      card = @deck.sample
-      @deck.delete(card)
-      @dealer << card
-    end
-    @dealer_value = @dealer.map {|card| card.value}.reduce(:+)
-
-    # if @dealer_value == 21
-    #   puts "DEALER WINS"
-    # elsif @player_value == 21
-    #   puts "PLAYER WINS"
-    # end
+    # puts "I am player.inspect: #{@player.inspect}"
+    # puts "I am dealer.inspect: #{@dealer.inspect}"
+    # puts "I am deck.inspect: #{@deck.inspect}"
 
     @current_cards = []
     @current_cards << @player
-    @current_cards << "SPLIT"
     @current_cards << @dealer
-    @current_cards << "SPLIT"
     @current_cards << @deck
-    puts "Puts me: #{@current_cards}"
+    # puts "Puts me: #{current_cards}"
+    @current_cards
 
+    # call_hit(@current_cards)
+
+    @player_value = @player.map {|card| card.value}.reduce(:+)
+    @dealer_value = @dealer.map {|card| card.value}.reduce(:+)
+
+
+    if @dealer_value == 21
+      @winner = "DEALER WINS"
+    elsif @player_value == 21
+      @winner = "PLAYER WINS"
+    elsif @player_value > 21
+      @winner = "PLAYER BUSTS, DEALER WINS"
+    elsif @dealer_value > 21
+      @winner = "DEALER BUSTS, PLAYER WINS"
+    else
+      @winner = nil
+    end
   end
 
   def hit
-    @current_cards = params[:hit].split('SPLIT/')
-    @current_cards.each {|array| array = array.split('/#')}
 
-    @deck = []
-    @dealer = []
-    @player = []
-    if @current_cards.nil?
-      render text: "Error.", status: 404
-    else
-      @deck = @deck.push(@current_cards.pop)
-      @dealer = @dealer.push(@current_cards.pop)
-      @player = @player.push(@current_cards.pop)
-    end
-
-    card = @deck.sample
-    @deck.delete(card)
-    @player << card
-    puts @player
-
-    @player_value = @player.map {|card| card.value}.reduce(:+)
-
-    @dealer_value = @dealer.map {|card| card.value}.reduce(:+)
-
-    if @dealer_value == 21
-      puts "DEALER WINS"
-    elsif @player_value == 21
-      puts "PLAYER WINS"
-    end
   end
 
   def winner
@@ -93,13 +72,65 @@ class PlayController < ApplicationController
     deck = fetch_cards * deck_count.to_i
   end
 
-  private
+  def get_hand(hit_count)
+    if params[:deck_count].present?
+      deck = create_deck(params[:deck_count].to_i)
+    else
+      deck = create_deck(1)
+    end
 
-  # def hit_params
-  #   params[:hit][:player] ||= []
-  #   params[:hit][:dealer] ||= []
-  #   params[:hit][:deck] ||= []
-  #   params.require(:hit).permit(player: [], dealer: [], deck: [])
-  # end
+    player = []
+    hit_count.times do |card|
+      card = deck.sample
+      deck.delete(card)
+      player << card
+    end
+
+    dealer = []
+    2.times do |card|
+      card = deck.sample
+      deck.delete(card)
+      dealer << card
+    end
+
+    current_cards = []
+    current_cards << player
+    current_cards << dealer
+    current_cards << deck
+    # puts "Puts me: #{current_cards}"
+    current_cards
+  end
+
+  def call_hit(current_cards)
+    if current_cards.nil?
+      render text: "Error.", status: 404
+      deck = []
+      dealer = []
+      player = []
+    else
+      deck = current_cards.pop
+      dealer = current_cards.pop
+      player = current_cards.pop
+    end
+
+    card = deck.sample
+    deck.delete(card)
+    player << card
+
+    dealer_value = dealer.map {|card| card.value}.reduce(:+)
+    if dealer_value < 16
+      card = deck.sample
+      deck.delete(card)
+      dealer << card
+      dealer_value = dealer.map {|card| card.value}.reduce(:+)
+    end
+
+    current_cards = []
+    current_cards << player
+    current_cards << dealer
+    current_cards << deck
+    # puts "Puts me: #{current_cards}"
+    current_cards
+  end
 
 end
