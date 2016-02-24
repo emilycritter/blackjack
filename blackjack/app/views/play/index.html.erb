@@ -1,0 +1,27 @@
+<nav class="well">
+    <p><a class="btn btn-primary btn-lg" href="/play" role="button" style="background-color: white; border: none; color: black;">Play</a></p>
+</nav>
+
+<div class="container" id="player">
+  <div class="row">
+    <h1>Player's Hand: <%= @player_value %></h1>
+    <% @player.each do |card| %>
+      <div class="col-xs-3 col-md-3">
+        <div class="thumbnail center-block">
+          <%= image_tag "cards/#{card.img_file}", class: "img-responsive" %>
+        </div>
+      </div>
+    <% end %>
+</div>
+
+<div class="container" id="dealer">
+  <div class="row">
+    <h1>Dealer's Hand: <%= @dealer_value %></h1>
+    <% @dealer.each do |card| %>
+      <div class="col-xs-3 col-md-3">
+        <div class="thumbnail center-block">
+          <%= image_tag "cards/#{card.img_file}", class: "img-responsive" %>
+        </div>
+      </div>
+    <% end %>
+</div>

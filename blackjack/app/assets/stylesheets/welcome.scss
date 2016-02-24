@@ -1,0 +1,23 @@
+$font-family: 'Source Sans Pro', sans-serif;
+$banner-color: #141414;
+$banner-font: #FEFEF7;
+
+.jumbotron {
+  background-image: url('./welcome.jpg');
+  margin-bottom: 0px;
+  background-position: 0% 25%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  text-align: right;
+  font-family: $font-family;
+  font-weight: bolder;
+  color: black;
+  padding: 20px;
+  min-height: 300px;
+  margin-bottom: 10px;
+}
+.well {
+  text-align: center;
+  background-color: $banner-color;
+  font-family: $font-family;
+}
